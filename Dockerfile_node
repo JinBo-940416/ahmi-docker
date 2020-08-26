@@ -1,0 +1,79 @@
+# base image
+FROM centos:8
+
+# maintainer info
+MAINTAINER graphichina-ahmi_ide_team-jinbo jinbo_940416@hotmail.com
+
+# update yum
+RUN yum -y update && yum install -y sudo
+
+# change yum repository source to ali-cloud
+ADD ./CentOS-AppStream.repo /etc/yum.repos.d/CentOS-AppStream.repo
+ADD ./CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+ADD ./CentOS-Extras.repo /etc/yum.repos.d/CentOS-Extras.repo
+
+# install latest version of git
+RUN yum install -y git
+
+# download nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+# run source command to implement changes
+RUN source ~/.bashrc
+
+# install node 8.17.0 
+RUN bash -i -c 'nvm install 8.17.0'
+RUN bash -i -c 'nvm use 8.17.0'
+
+# copy code folder to image
+ADD ./ahmi-server/ /ahmi-server/
+
+# install npm and change npm repository to taobao
+RUN bash -i -c 'npm config set registry https://registry.npm.taobao.org'
+
+# install "everything" including gcc 
+RUN yum group install -y "Development Tools"
+
+# need to install python2 and set as default python
+RUN yum install -y python2
+RUN ln -s /usr/bin/python2 /bin/python
+
+# install npm canvas and related packages
+WORKDIR /ahmi-server/
+RUN yum install -y gcc-c++ 
+RUN yum install -y cairo-devel 
+RUN yum install -y pango-devel 
+RUN yum install -y libjpeg-turbo-devel 
+RUN dnf --enablerepo=PowerTools install -y giflib-devel
+RUN bash -i -c 'npm install bcrypt@1.0.3'
+RUN bash -i -c 'npm install canvas'
+
+# install npm
+RUN bash -i -c 'npm install'
+
+# npm install in simulator
+WORKDIR /ahmi-server/simulator/
+RUN bash -i -c 'npm install'
+
+# npm install in data-analysis
+WORKDIR /ahmi-server/data-analysis/
+RUN bash -i -c 'npm install'
+
+# npm install in actionVisualization
+WORKDIR /ahmi-server/actionVisualization/
+RUN bash -i -c 'npm install'
+
+# go back to ahmi folder
+WORKDIR /ahmi-server/
+
+# expose port 3000 
+# EXPOSE 3000
+
+
+
+
+
+
+
+
+

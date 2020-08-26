@@ -1,0 +1,28 @@
+# base image
+FROM centos:8
+
+# maintainer info
+MAINTAINER graphichina-ahmi_ide_team-jinbo jinbo_940416@hotmail.com
+
+# change yum repository source to ali-cloud
+ADD ./CentOS-AppStream.repo /etc/yum.repos.d/CentOS-AppStream.repo
+ADD ./CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+ADD ./CentOS-Extras.repo /etc/yum.repos.d/CentOS-Extras.repo
+
+# update yum and install sudo
+RUN yum -y update && yum install -y sudo
+
+# add mongo repo file from host to image
+ADD ./mongodb-org-3.4.repo /etc/yum.repos.d/mongodb-org-3.4.repo
+
+# install mongo using yum
+RUN sudo yum install -y mongodb-org
+
+# create data folder
+RUN sudo mkdir -p /data/db
+
+# expose port 27017 and attach to host port 27017
+# EXPOSE 27017
+
+# on start
+CMD sudo mongod
